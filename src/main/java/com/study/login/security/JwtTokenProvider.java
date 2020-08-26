@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,17 +22,20 @@ import java.util.List;
 /**
  * JWT토큰 발행자. 토큰을 직접적으로 발행하는 주체클래스이다.
  */
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
-    //Salt할 값.
-    private String secretKey = "yohan";
+    @Value("${jwt.secretkey}")
+    private String secretKey;
 
     //토큰 유효시간 지정.(30분)
     private final long tokenValidTime = 30 * 60 * 1000L;
+    //리프레쉬 토큰 유효시간 지정(1일)
+    private final long refreshTokenValidTime =  24 * 60 * 60 * 1000L;
 
     @PostConstruct
     protected void init() {
@@ -48,11 +53,23 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(userPk); //JWT payload에 저장되는 정보 단위
         claims.put("roles", roles);
         Date now = new Date();
-
         return Jwts.builder()
                 .setClaims(claims) //정보 저장
                 .setIssuedAt(now) //토큰 발행시간
                 .setExpiration(new Date(now.getTime() + tokenValidTime)) //토큰 만료시간
+                .signWith(SignatureAlgorithm.HS256, secretKey) //사용할 암호화 알고리즘과 시그니쳐에 들어갈 secret값 세팅.
+                .compact();
+    }
+
+    public String createRefreshToken(String userPk, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(userPk); //JWT payload에 저장되는 정보 단위
+        claims.put("roles", roles);
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims) //정보 저장
+                .setIssuedAt(now) //토큰 발행시간
+                .setIssuer("refresh")
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime)) //Refresh토큰 만료시간은 하루.
                 .signWith(SignatureAlgorithm.HS256, secretKey) //사용할 암호화 알고리즘과 시그니쳐에 들어갈 secret값 세팅.
                 .compact();
     }
@@ -103,6 +120,7 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
 
 
 }

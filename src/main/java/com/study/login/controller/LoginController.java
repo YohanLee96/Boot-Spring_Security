@@ -34,7 +34,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> login(@RequestBody UserDto userDto) {
         User user = userRepository.findByEmail(userDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("가입되지 않은 이메일입니다."));
 
@@ -43,9 +43,12 @@ public class LoginController {
         }
 
         String jwtToken = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUsername(), user.getRoles());
         log.info("생성된 JWT 토큰 : " + jwtToken);
 
-        return ResponseEntity.ok(jwtToken);
+        userDto.setToken(jwtToken, refreshToken);
+
+        return ResponseEntity.ok(userDto);
     }
 
     @GetMapping("/confirm")

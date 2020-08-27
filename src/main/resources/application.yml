@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    hikari:
+      jdbc-url: jdbc:h2:tcp://localhost/~/test
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+    platform: h2
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+jwt :
+  secretkey : yohan
+
+redis :
+  host : localhost
+  port : 6379
+  password : 

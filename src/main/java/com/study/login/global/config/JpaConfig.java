@@ -1,4 +1,4 @@
-package com.study.login.config;
+package com.study.login.global.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;

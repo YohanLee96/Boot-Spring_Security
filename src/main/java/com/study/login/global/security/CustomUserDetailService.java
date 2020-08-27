@@ -1,4 +1,4 @@
-package com.study.login.security;
+package com.study.login.global.security;
 
 import com.study.login.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

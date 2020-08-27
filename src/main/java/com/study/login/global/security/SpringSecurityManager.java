@@ -1,6 +1,7 @@
-package com.study.login.security;
+package com.study.login.global.security;
 
-import io.jsonwebtoken.Jwt;
+import com.study.login.global.security.jwt.JwtAuthenticationFilter;
+import com.study.login.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity //Spring Security 설정클래스 정의
 @Configuration
-public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
+public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
 
     private final JwtTokenProvider provider;
 

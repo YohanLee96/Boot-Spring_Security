@@ -24,7 +24,6 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Slf4j
 @SpringBootTest
 public class LoginTest {
 
@@ -108,7 +107,6 @@ public class LoginTest {
         //생성한 토큰에 들어있는 인증정보 확인.
         Authentication authentication = jwtTokenProvider.getAuthentication(token.getAccessToken());
 
-        log.info("인증정보 [{}]", authentication);
 
         //토큰에 저장된 name값과 email값이 일치하는지 확인.
         //Spring Security에서 USER_NAME값을 Email로 지정했기때문에 Email로 조회한다.

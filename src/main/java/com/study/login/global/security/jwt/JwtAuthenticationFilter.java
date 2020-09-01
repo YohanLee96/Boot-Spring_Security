@@ -1,6 +1,13 @@
 package com.study.login.global.security.jwt;
 
+import com.study.login.dto.UserDto;
+import com.study.login.model.User;
+import com.study.login.model.redis.Login;
+import com.study.login.repository.LoginRepository;
+import com.study.login.repository.UserRepository;
+import com.study.login.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -11,6 +18,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * {@link JwtTokenProvider} JWT발행자를 이용하여 실제 유저 인증작업을 하는 Filter 클래스
@@ -25,17 +33,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {    //Servlet �
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         //HTTP Request Header에서 Token값을 가져옴.
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
+
         if(token != null) {
             //token이 존재하는지 여부와 토큰의 유효성 및 만료기간초과 여부를 확인한다.
             if (jwtTokenProvider.validateToken(token)) {
-                //토큰이 유효하면 토큰으로부터 유저 정보를 받아옴.
+                //토큰으로부터 유저 정보를 받아옴.
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 //SecurityContext에 Authentication 객체를 저장.
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                //만료가 됬다면 RefreshToken을 확인하고 새로운 토큰을 발급해준다.
-                // TODO: 2020-08-27 Redis 에서 검증.
-
             }
         }
 

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Slf4j
 @SpringBootTest
 public class PasswordEncoderTest {
 
@@ -22,8 +21,8 @@ public class PasswordEncoderTest {
         String password2 = "122342342354235345";
         String password_end = passwordEncoder.encode(password);
 
-        log.info("인코딩 전 : {}", password);
-        log.info("인코딩 후 : {}", password_end);
+//        log.info("인코딩 전 : {}", password);
+//        log.info("인코딩 후 : {}", password_end);
         //인코딩한 비번과 안한 비번 매칭 테스트
         boolean isMatch = passwordEncoder.matches(password, password_end);
         Assertions.assertThat(isMatch).isTrue();

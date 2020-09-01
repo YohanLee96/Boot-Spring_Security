@@ -7,14 +7,16 @@ spring:
       password:
     platform: h2
 
+  profiles:
+    active: local
+  redis:
+    host: 127.0.0.1
+    port: 6380
+    password:
+
   jpa:
     hibernate:
       ddl-auto: none
 
 jwt :
   secretkey : yohan
-
-redis :
-  host : localhost
-  port : 6379
-  password : 

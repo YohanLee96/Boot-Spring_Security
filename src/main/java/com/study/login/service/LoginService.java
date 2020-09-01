@@ -2,22 +2,23 @@ package com.study.login.service;
 
 import com.study.login.dto.UserDto;
 import com.study.login.model.User;
+import com.study.login.model.redis.Login;
+import com.study.login.repository.LoginRepository;
 import com.study.login.repository.UserRepository;
 import com.study.login.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginService {
 
     private final UserRepository userRepository;
+    private final LoginRepository loginRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -53,6 +54,8 @@ public class LoginService {
         }
 
         userDto.setToken(jwtTokenProvider.createTokenSet(user.getUsername(), user.getRoles()));
+        //  Redis에 저장.
+        loginRepository.save(new Login(userDto.getAccessToken(), userDto.getRefreshToken()));
 
         return userDto;
     }

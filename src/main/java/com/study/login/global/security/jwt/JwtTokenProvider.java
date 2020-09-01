@@ -17,7 +17,6 @@ import java.util.*;
 /**
  * JWT토큰 발행자. 토큰을 직접적으로 발행하는 주체클래스이다.
  */
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
@@ -25,13 +24,9 @@ public class JwtTokenProvider {
     private final UserDetailsService userDetailsService;
     private final JwtTokenBuilder jwtTokenBuilder;
 
+
     @Value("${jwt.secretkey}")
     private String secretKey;
-
-    //토큰 유효시간 지정.
-    private static final long BASIC_TIME = 10 * 1000L;
-    //리프레쉬 토큰 유효시간 지정
-    private static final long REFRESH_TIME =  24 * 60 * 60 * 1000L;
 
     @PostConstruct
     protected void init() {

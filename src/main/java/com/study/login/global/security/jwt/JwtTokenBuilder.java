@@ -20,7 +20,7 @@ public class JwtTokenBuilder {
     private Date nowDate;
 
     //토큰 유효시간 지정.
-    private static final long BASIC_TIME = 10 * 1000L;
+    private static final long BASIC_TIME = 30 * 1000L;
     //리프레쉬 토큰 유효시간 지정
     private static final long REFRESH_TIME =  24 * 60 * 60 * 1000L;
 

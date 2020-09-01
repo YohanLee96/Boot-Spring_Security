@@ -1,10 +1,14 @@
 package com.study.login.global.security;
 
 import com.study.login.global.security.jwt.JwtAuthenticationFilter;
+import com.study.login.global.security.jwt.JwtTokenBuilder;
 import com.study.login.global.security.jwt.JwtTokenProvider;
+import com.study.login.repository.LoginRepository;
+import com.study.login.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +29,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
 
     private final JwtTokenProvider provider;
-
     /**
      * 암호화에 필요한 PasswordEncoder 추상체를 Bean에 등록합니다.
      * @return 암호화 Encoding 추상체

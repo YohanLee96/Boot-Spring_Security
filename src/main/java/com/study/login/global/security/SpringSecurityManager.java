@@ -1,14 +1,12 @@
 package com.study.login.global.security;
 
 import com.study.login.global.security.jwt.JwtAuthenticationFilter;
-import com.study.login.global.security.jwt.JwtTokenBuilder;
 import com.study.login.global.security.jwt.JwtTokenProvider;
-import com.study.login.repository.LoginRepository;
-import com.study.login.service.UserService;
+import com.study.login.model.UserRole;
+import com.study.login.service.RedisLoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
 
     private final JwtTokenProvider provider;
+    private final RedisLoginService redisLoginService;
     /**
      * 암호화에 필요한 PasswordEncoder 추상체를 Bean에 등록합니다.
      * @return 암호화 Encoding 추상체
@@ -55,24 +54,22 @@ public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //�
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-            //Rest API만을 고려하여 기본설정 해지.
-            .httpBasic().disable()
-            // csrf 보안 토큰 Disable 처리.
-            .csrf().disable()
-            //토큰 기반 인증이므로 세션 역시 사용 안함.
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            //[/admin/*] 형식의 URL은 ADMIN ROLE 부여.
-            .antMatchers("/admin/**").hasRole("ADMIN")
-                //[/user/*] 형식의 URL은 USER ROLE 부여.
-            .antMatchers("/user/**").hasRole("USER")
-                //이외 URL은 모든권한 부여.
-            .anyRequest().permitAll()
-            .and()
-            //UsernamePasswordAuthenticationFilter 전에 JWT인증필터를 넣는다.
-            .addFilterBefore(new JwtAuthenticationFilter(provider), UsernamePasswordAuthenticationFilter.class);
+        http.
+             httpBasic().disable().  //Rest API만을 고려하여 기본설정 해지.
+             cors().and().
+             csrf().disable().  // csrf 보안 토큰 Disable 처리.
+             sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS). //토큰 기반 인증이므로 세션 역시 사용 안함.
+             and().
+             //[/admin/*] 형식의 URL은 ADMIN ROLE 부여.
+             authorizeRequests().
+             antMatchers("/admin/*").hasAnyRole(UserRole.ADMIN.toString()).
+             antMatchers("/user/*").hasAnyRole(UserRole.USER.toString(), UserRole.ADMIN.toString()).
+             anyRequest().permitAll().  //이외 모든 다른 요청은 권한 허용.
+             and().
+             exceptionHandling().accessDeniedPage("/accessDenied").
+             and().
+             //UsernamePasswordAuthenticationFilter 전에 JWT인증필터를 넣는다.
+             addFilterBefore(new JwtAuthenticationFilter(provider, redisLoginService), UsernamePasswordAuthenticationFilter.class);
 
 
     }

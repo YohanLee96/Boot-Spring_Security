@@ -13,8 +13,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public UserDto getUser(String email) {
-        User user = userRepository.findByEmail(email)
+    public UserDto getUser(String userId) {
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
 
         return user.toDto();

@@ -1,50 +1,65 @@
 package com.study.login.global.security.jwt;
 
-import com.study.login.dto.UserDto;
-import com.study.login.model.User;
 import com.study.login.model.redis.Login;
-import com.study.login.repository.LoginRepository;
-import com.study.login.repository.UserRepository;
-import com.study.login.service.UserService;
+import com.study.login.service.RedisLoginService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * {@link JwtTokenProvider} JWT발행자를 이용하여 실제 유저 인증작업을 하는 Filter 클래스
  */
 
+@Slf4j
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends GenericFilterBean {    //Servlet 필터 상속
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider; //JWT토큰 발행 클래스
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisLoginService redisLoginService;
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
         //HTTP Request Header에서 Token값을 가져옴.
-        String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
+        String token = jwtTokenProvider.resolveToken(request);
 
-        if(token != null) {
-            //token이 존재하는지 여부와 토큰의 유효성 및 만료기간초과 여부를 확인한다.
-            if (jwtTokenProvider.validateToken(token)) {
-                //토큰으로부터 유저 정보를 받아옴.
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                //SecurityContext에 Authentication 객체를 저장.
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(vaildTokenType(token)) {
+            //token = token.replaceFirst("Bearer","");
+            log.info("발행된 토큰 [{}]", token);
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+
+            //token이 존재하는지 여부와 토큰의 만료기간초과 여부를 확인한다.
+            if (!jwtTokenProvider.validateToken(token)) {
+                Login login = redisLoginService.getLoginInfo(authentication.getName());
+
+                if(jwtTokenProvider.validateToken(login.getRefreshToken())) {
+                    login.setAccessToken(jwtTokenProvider.createAccessToken(login.getUserId(), login.getRoles()));
+                    authentication = login.toAuthentication();
+                }
+
             }
+            log.info("auth : [{}]",authentication.getAuthorities());
+            //SecurityContext에 Authentication 객체를 저장.
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         //필터 등록
-        filterChain.doFilter(servletRequest, servletResponse);  
+        filterChain.doFilter(request, response);
     }
+
+    private boolean vaildTokenType(String token) {
+        return token != null; //&& token.startsWith("Bearer");
+    }
+
 }

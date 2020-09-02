@@ -7,6 +7,8 @@ import com.study.login.service.LoginService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,12 +35,11 @@ public class LoginController {
         return ResponseEntity.ok(loginService.userLogin(userDto));
     }
 
-    @PostMapping("/claims-body")
-    public ResponseEntity<?> getRest(@RequestBody Token token) {
-        Map<String, Claims> claimsMap = new HashMap<>();
-        claimsMap.put("accessToken", jwtTokenProvider.getBody(token.getAccessToken()));
-        claimsMap.put("refreshToken", jwtTokenProvider.getBody(token.getRefreshToken()));
-        return ResponseEntity.ok(claimsMap);
+    @GetMapping("/accessDenied")
+    public ResponseEntity<?> error() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(authentication);
     }
+
 
 }

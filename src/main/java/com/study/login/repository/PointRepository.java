@@ -1,6 +1,6 @@
 package com.study.login.repository;
 
-import com.study.login.model.Point;
+import com.study.login.model.redis.Point;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

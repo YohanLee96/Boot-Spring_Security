@@ -1,4 +1,4 @@
-package com.study.login.model;
+package com.study.login.model.redis;
 
 import lombok.Builder;
 import lombok.Getter;

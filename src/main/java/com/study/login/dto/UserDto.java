@@ -3,6 +3,7 @@ package com.study.login.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.login.model.User;
 import com.study.login.global.security.jwt.Token;
+import com.study.login.model.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.List;
 @Setter
 public class UserDto implements Serializable {
 
-    private String email;
+    private String userId;
 
     private String password;
 
@@ -22,7 +23,7 @@ public class UserDto implements Serializable {
 
     private String refreshToken;
 
-    private List<String> roles;
+    private UserRole role;
 
     public void setToken(Token token) {
         this.accessToken = token.getAccessToken();
@@ -31,17 +32,18 @@ public class UserDto implements Serializable {
 
     public User toEntity() {
         return User.builder()
-                .email(this.email)
+                .userId(this.userId)
                 .password(this.password)
+                .role(this.role)
                 .build();
     }
 
     @Builder
-    public UserDto(String email, String password, String accessToken, String refreshToken, List<String> roles) {
-        this.email = email;
+    public UserDto(String userId, String password, String accessToken, String refreshToken, UserRole role) {
+        this.userId = userId;
         this.password = password;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.roles = roles;
+        this.role = role;
     }
 }

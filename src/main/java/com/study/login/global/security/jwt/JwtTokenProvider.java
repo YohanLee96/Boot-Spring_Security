@@ -1,5 +1,6 @@
 package com.study.login.global.security.jwt;
 
+import com.study.login.model.UserRole;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,11 @@ public class JwtTokenProvider {
     public Token createTokenSet(String userPk, List<String> roles) {
         return new Token(jwtTokenBuilder.createAccessToken(userPk, roles), jwtTokenBuilder.createRefreshToken(userPk, roles));
     }
+
+    public String createAccessToken(String userPk, List<String> roles) {
+        return jwtTokenBuilder.createAccessToken(userPk, roles);
+    }
+
     /**
      * JWT 토큰에서 인증정보 조회
      * Spring SecurityContext에 저장할 때 쓰임.
@@ -51,8 +57,7 @@ public class JwtTokenProvider {
      */
     public Authentication getAuthentication(String token) {
         UserDetails userDetails =  userDetailsService.loadUserByUsername(this.getUserPk(token));
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     /**
@@ -97,8 +102,14 @@ public class JwtTokenProvider {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return claims.getBody().getExpiration().after(new Date());
         } catch (ExpiredJwtException e) {
+            e.printStackTrace();
             return false;
+        } catch(Exception e) {
+            e.printStackTrace();
         }
+
+        return true;
+
     }
 
 

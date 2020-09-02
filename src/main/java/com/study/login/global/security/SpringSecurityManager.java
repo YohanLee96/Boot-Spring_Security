@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -56,11 +57,11 @@ public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //�
     protected void configure(HttpSecurity http) throws Exception {
         http.
              httpBasic().disable().  //Rest API만을 고려하여 기본설정 해지.
+             formLogin().disable().
              cors().and().
              csrf().disable().  // csrf 보안 토큰 Disable 처리.
              sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS). //토큰 기반 인증이므로 세션 역시 사용 안함.
              and().
-             //[/admin/*] 형식의 URL은 ADMIN ROLE 부여.
              authorizeRequests().
              antMatchers("/admin/*").hasAnyRole(UserRole.ADMIN.toString()).
              antMatchers("/user/*").hasAnyRole(UserRole.USER.toString(), UserRole.ADMIN.toString()).

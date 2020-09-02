@@ -54,7 +54,7 @@ public class Login implements UserDetails {
 
     @Override
     public String getPassword() {
-        return  "dummy";
+        return  "{noop}dummy";
     }
 
     @Override

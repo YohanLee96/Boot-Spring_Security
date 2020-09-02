@@ -30,26 +30,28 @@ public class JwtTokenBuilder {
         this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createAccessToken(String userPk, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk); //JWT payload에 저장되는 정보 단위
-        claims.put("roles", roles);
+    public String createAccessToken(String userName, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(userName); //JWT payload에 저장되는 정보 단위
+        claims.put("role", roles);
 
         return Jwts.builder()
                 .setClaims(claims) //정보 저장
                 .setIssuedAt(new Date()) //토큰 발행시간
                 .setExpiration(new Date(new Date().getTime() + BASIC_TIME)) //토큰 만료시간
+                .setSubject(userName)
                 .signWith(SignatureAlgorithm.HS256, this.secretKey) //사용할 암호화 알고리즘과 시그니쳐에 들어갈 secret값 세팅.
                 .compact();
     }
 
-    public String createRefreshToken(String userPk, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk); //JWT payload에 저장되는 정보 단위
-        claims.put("roles", roles);
+    public String createRefreshToken(String userName, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(userName); //JWT payload에 저장되는 정보 단위
+        claims.put("role", roles);
 
         return Jwts.builder()
                 .setClaims(claims) //정보 저장
                 .setIssuedAt(new Date()) //토큰 발행시간
                 .setExpiration(new Date(new Date().getTime() + REFRESH_TIME)) //Refresh토큰 만료시간은 하루.
+                .setSubject(userName)
                 .signWith(SignatureAlgorithm.HS256, this.secretKey) //사용할 암호화 알고리즘과 시그니쳐에 들어갈 secret값 세팅.
                 .compact();
     }

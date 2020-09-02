@@ -4,8 +4,11 @@ import com.study.login.model.redis.Login;
 import com.study.login.service.RedisLoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        //HTTP Request Header에서 Token값을 가져옴.
         String token = jwtTokenProvider.resolveToken(request);
 
         if(vaildTokenType(token)) {
@@ -60,6 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean vaildTokenType(String token) {
         return token != null; //&& token.startsWith("Bearer");
+    }
+
+    @Bean
+    public FilterRegistrationBean JwtRequestFilterRegistration (JwtAuthenticationFilter filter) {
+        FilterRegistrationBean registration = new FilterRegistrationBean(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
 }

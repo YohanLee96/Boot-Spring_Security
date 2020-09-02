@@ -13,8 +13,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getRest(@PathVariable String userId) {
+    @GetMapping("/my-info")
+    public ResponseEntity<?> getRest(@RequestParam String userId) {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 }

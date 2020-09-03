@@ -1,7 +1,7 @@
-package com.study.login.controller;
+package com.study.login.domain.controller;
 
 
-import com.study.login.service.UserService;
+import com.study.login.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/my-info")
-    public ResponseEntity<?> getRest(@RequestParam String userId) {
-        return ResponseEntity.ok(userService.getUser(userId));
+    public ResponseEntity<?> getRest(
+            @RequestHeader(value="Authorization") String accessToken) {
+        return ResponseEntity.ok(userService.getUser(accessToken));
     }
 }

@@ -1,4 +1,4 @@
-package com.study.login.model;
+package com.study.login.domain.model;
 
 import lombok.Getter;
 

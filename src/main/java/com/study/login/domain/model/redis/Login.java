@@ -1,6 +1,6 @@
-package com.study.login.model.redis;
+package com.study.login.domain.model.redis;
 
-import com.study.login.model.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -10,8 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.FetchType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,9 +18,10 @@ import java.util.stream.Collectors;
 /**
  * Redis에 저장될 Data 구조
  */
-@RedisHash("token")
+@RedisHash("users")
 @Getter @Setter
 @NoArgsConstructor
+@ToString
 public class Login implements UserDetails {
     @Id
     private String userId;

@@ -1,15 +1,15 @@
-package com.study.login.dto;
+package com.study.login.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.study.login.model.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.study.login.domain.model.User;
 import com.study.login.global.security.jwt.Token;
-import com.study.login.model.UserRole;
+import com.study.login.domain.model.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +17,7 @@ public class UserDto implements Serializable {
 
     private String userId;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     private String accessToken;

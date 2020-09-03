@@ -1,10 +1,10 @@
-package com.study.login.service;
+package com.study.login.domain.service;
 
-import com.study.login.dto.UserDto;
-import com.study.login.model.User;
-import com.study.login.model.redis.Login;
-import com.study.login.repository.redis.LoginRedisRepository;
-import com.study.login.repository.UserRepository;
+import com.study.login.domain.dto.UserDto;
+import com.study.login.domain.model.User;
+import com.study.login.domain.model.redis.Login;
+import com.study.login.domain.repository.redis.LoginRedisRepository;
+import com.study.login.domain.repository.UserRepository;
 import com.study.login.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

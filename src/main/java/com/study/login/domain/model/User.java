@@ -1,14 +1,12 @@
-package com.study.login.model;
+package com.study.login.domain.model;
 
-import com.study.login.dto.UserDto;
+import com.study.login.domain.dto.UserDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Spring Security는 UserDetails 구현체를 통해 권한 정보를 관리하기 때문에 {@link UserDetails}를 구현한다.
@@ -39,7 +37,7 @@ public class User {
     @Builder
     public User(String userId, String password, UserRole role) {
         this.userId = userId;
-        this.password = "{noop}"+ password;
+        this.password = addNoOp(password);
         this.role = role;
     }
 
@@ -50,5 +48,11 @@ public class User {
                 .role(this.role)
                 .build();
     }
+
+    private String addNoOp(String password) {
+        return "{noop}" + password;
+    }
+
+
 
 }

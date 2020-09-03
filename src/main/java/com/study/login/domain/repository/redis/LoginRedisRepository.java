@@ -1,10 +1,9 @@
-package com.study.login.repository.redis;
+package com.study.login.domain.repository.redis;
 
-import com.study.login.model.redis.Login;
+import com.study.login.domain.model.redis.Login;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LoginRedisRepository extends CrudRepository<Login, String> {
-
 }

@@ -1,18 +1,13 @@
 package com.study.login.global.security;
 
-import com.study.login.model.redis.Login;
-import com.study.login.repository.redis.LoginRedisRepository;
+import com.study.login.domain.model.redis.Login;
+import com.study.login.domain.repository.redis.LoginRedisRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * 토큰에 저장된 유저정보를 활용하여 유저를 인증하기 위해 {@link UserDetailsService} 추상체를

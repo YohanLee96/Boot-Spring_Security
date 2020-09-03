@@ -1,9 +1,8 @@
 package com.study.login.global.security;
 
-import com.study.login.global.security.jwt.JwtAuthenticationFilter;
+import com.study.login.domain.model.UserRole;
+import com.study.login.global.security.jwt.JwtFilter;
 import com.study.login.global.security.jwt.JwtTokenProvider;
-import com.study.login.model.UserRole;
-import com.study.login.service.RedisLoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,7 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
 
     private final JwtTokenProvider provider;
-    private final RedisLoginService redisLoginService;
+
     /**
      * 암호화에 필요한 PasswordEncoder 추상체를 Bean에 등록합니다.
      * @return 암호화 Encoding 추상체
@@ -63,14 +61,12 @@ public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //�
              sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS). //토큰 기반 인증이므로 세션 역시 사용 안함.
              and().
              authorizeRequests().
-             antMatchers("/admin/*").hasAnyRole(UserRole.ADMIN.toString()).
-             antMatchers("/user/*").hasAnyRole(UserRole.USER.toString(), UserRole.ADMIN.toString()).
+             antMatchers("*/admin/*").hasAnyRole(UserRole.ADMIN.toString()).
+             antMatchers("*/user/*").hasAnyRole(UserRole.USER.toString(), UserRole.ADMIN.toString()).
              anyRequest().permitAll().  //이외 모든 다른 요청은 권한 허용.
              and().
-             exceptionHandling().accessDeniedPage("/accessDenied").
-             and().
              //UsernamePasswordAuthenticationFilter 전에 JWT인증필터를 넣는다.
-             addFilterBefore(new JwtAuthenticationFilter(provider, redisLoginService), UsernamePasswordAuthenticationFilter.class);
+             addFilterBefore(new JwtFilter(provider), UsernamePasswordAuthenticationFilter.class);
 
 
     }

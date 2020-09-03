@@ -1,9 +1,7 @@
 package com.study.login.global.security.jwt;
 
-import com.study.login.model.UserRole;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +34,7 @@ public class JwtTokenProvider {
     }
 
     /**
-     * JWT 토큰을 생성합니다.
+     * JWT 토큰셋을 생성합니다.
      * @param userPk 유저 유니크값
      * @param roles 유저의 ROLE
      * @return Access Token, Refresh Token
@@ -45,42 +43,38 @@ public class JwtTokenProvider {
         return new Token(jwtTokenBuilder.createAccessToken(userPk, roles), jwtTokenBuilder.createRefreshToken(userPk, roles));
     }
 
+    /**
+     * AccessToken을 생성합니다.
+     * @param userPk 유저 유니크값
+     * @param roles 유저의 ROLE
+     * @return Access Token
+     */
     public String createAccessToken(String userPk, List<String> roles) {
         return jwtTokenBuilder.createAccessToken(userPk, roles);
     }
 
     /**
-     * JWT 토큰에서 인증정보 조회
+     * JWT 토큰에서  스프링 시큐리티 인증정보 조회
      * Spring SecurityContext에 저장할 때 쓰임.
      * @param token JWT 토큰
-     * @return 인증 정보
+     * @return 스프링 시큐리티 인증 정보
      */
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token) throws ExpiredJwtException {
         UserDetails userDetails =  userDetailsService.loadUserByUsername(this.getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     /**
-     * 토큰에서 회원정보 추출.
+     * 토큰에서 유저의 Subject값 추출.
      * @param token JWT 토큰
-     * @return 회원정보
+     * @return 회원 Subject값
      */
-    private String getUserPk(String token) {
+    public String getUserPk(String token) throws ExpiredJwtException {
         return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    /**
-     * 토큰에서 Body 추출
-     */
-    public Claims getBody(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
     }
 
     /**

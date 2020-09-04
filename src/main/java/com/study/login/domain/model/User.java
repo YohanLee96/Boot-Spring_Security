@@ -33,11 +33,14 @@ public class User {
     private UserRole role;
 
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     @Builder
     public User(String userId, String password, UserRole role) {
         this.userId = userId;
-        this.password = addNoOp(password);
+        this.password = password;
         this.role = role;
     }
 
@@ -48,11 +51,4 @@ public class User {
                 .role(this.role)
                 .build();
     }
-
-    private String addNoOp(String password) {
-        return "{noop}" + password;
-    }
-
-
-
 }

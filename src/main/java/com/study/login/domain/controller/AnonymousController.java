@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/anonymous")
+public class AnonymousController {
 
     @GetMapping("/test")
     public String getRest() {
-        return "This is Admin Service";
+        return "This is Anonymous Service";
     }
 }

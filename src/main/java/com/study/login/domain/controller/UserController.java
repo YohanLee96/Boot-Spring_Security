@@ -13,9 +13,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/my-info")
-    public ResponseEntity<?> getRest(
-            @RequestHeader(value="Authorization") String accessToken) {
-        return ResponseEntity.ok(userService.getUser(accessToken));
+    @GetMapping("/test")
+    public String getRest() {
+        return "This is User Domain";
     }
 }

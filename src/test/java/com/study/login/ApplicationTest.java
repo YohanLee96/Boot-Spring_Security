@@ -1,40 +1,62 @@
 package com.study.login;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.login.domain.dto.UserDto;
 import com.study.login.domain.model.User;
 import com.study.login.domain.model.UserRole;
+import com.study.login.domain.model.redis.Login;
 import com.study.login.domain.repository.UserRepository;
-import com.study.login.domain.service.LoginService;
+import com.study.login.domain.repository.redis.LoginRedisRepository;
 import com.study.login.domain.service.UserService;
-import com.study.login.global.security.jwt.JwtTokenProvider;
-import org.assertj.core.api.Assertions;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 public class ApplicationTest {
-
     @Autowired
-    private LoginService loginService;
-
+    private UserService userService;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-    //https://cheese10yun.github.io/spring-boot-test/
+    private LoginRedisRepository loginRedisRepository;
+    @Autowired
+    private WebApplicationContext context;
+
+    private MockMvc mvc;
+    private ObjectMapper objectMapper;
 
 
-    private static final String ID = "dldygks1234";
-    private static final String PASSWORD = "1234";
+    private static final String ID = "dldygks12345";
+    private static final String PASSWORD = "12345";
     private static final UserRole ROLE = UserRole.USER;
+
+
+    @BeforeEach
+    void init() {
+        this.mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+
+        this.objectMapper = new ObjectMapper();
+    }
 
     @Test
     @DisplayName("회원가입 테스트")
@@ -47,7 +69,7 @@ public class ApplicationTest {
                 .build();
 
         //회원가입 서비스
-        loginService.saveUser(userDto);
+        userService.saveUser(userDto);
 
         User user = userRepository.findByUserId(userDto.getUserId())
                 .orElseThrow(NullPointerException::new);
@@ -58,42 +80,79 @@ public class ApplicationTest {
 
 
     @Test
-    @DisplayName("로그인 테스트")
-    void loginTest() {
+    @DisplayName("신규가입한 사용자는 로그인을 할 수 있다.")
+    @Transactional
+    void loginTest() throws Exception {
 
-        User user = userRepository.findAll().get(0);
-        UserDto userDTO = UserDto.builder()
-                .userId(user.getUserId())
-                .password(user.getPassword().replace("{noop}",""))
+        UserDto userDto = UserDto.builder()
+                .userId(ID)
+                .password(PASSWORD)
+                .role(ROLE)
                 .build();
 
-        //로그인 후, Token 획득.
-        UserDto loginUserDTO = loginService.userLogin(userDTO);
+        //회원가입
+        userService.saveUser(userDto);
 
-        //획득한 Token으로 유저 인증.
-        Authentication authentication = jwtTokenProvider.getAuthentication(loginUserDTO.getAccessToken());
+        mvc.perform(post("/login")
+                .content(objectMapper.writeValueAsString(userDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
 
-        //Security Context에 등록된 UserName값과 UserId가 같은지 확인.
-        assertThat(userDTO.getUserId()).isEqualTo(authentication.getName());
     }
 
     @Test
-    @DisplayName("USER Role인 유저로  ADMIN 서비스에 요청")
-    void roleTest() {
-        User user = userRepository.findAllByRole(UserRole.USER).get(0);
-
-        UserDto userDTO = UserDto.builder()
-                .userId(user.getUserId())
-                .password(user.getPassword().replace("{noop}",""))
+    @DisplayName("로그인한 사용자정보는 Redis에 저장된다.")
+    @Transactional
+    void redisTest() throws Exception {
+        UserDto userDto = UserDto.builder()
+                .userId(ID)
+                .password(PASSWORD)
+                .role(ROLE)
                 .build();
+
+        //회원가입
+        userService.saveUser(userDto);
 
         //로그인
-        UserDto loginUserDTO = loginService.userLogin(userDTO);
+        mvc.perform(post("/login")
+                .content(objectMapper.writeValueAsString(userDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        Login login = loginRedisRepository.findById(ID).orElseThrow(NullPointerException::new);
+
+        //로그인한 사용자ID가 Redis에 저장된 ID와 일치하는지 확인.
+        assertThat(ID).isEqualTo(login.getUserId());
     }
 
     @Test
-    @DisplayName("ADMIN Role인 유저로 ADMIN 서비스 요청")
-    void roleTest2() {
+    @DisplayName("ADMIN 관련 서비스는 USER Role을 가진 사용자는 이용할 수 없다.")
+    @WithMockUser(username = "yohan", authorities = {"USER"})
+    void roleTest() throws Exception {
+        mvc.perform(get("/admin/test")
+                .accept(MediaType.TEXT_PLAIN))
+                .andExpect(status().is4xxClientError())
+                .andDo(print());
+    }
 
+    @Test
+    @DisplayName("ADMIN 관련 서비스는 ADMIN Role을 가진 사용자만 이용할 수 있다.")
+    @WithMockUser(username ="yohan", authorities = {"ADMIN"})
+    void roleTest2() throws Exception {
+        mvc.perform(get("/admin/test").accept(MediaType.TEXT_PLAIN))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("아무 권한이 필요없는 서비스는 누구나 이용할 수 있다.")
+    void roleTest3() throws Exception {
+        mvc.perform(get("/anonymous/test").accept(MediaType.TEXT_PLAIN))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

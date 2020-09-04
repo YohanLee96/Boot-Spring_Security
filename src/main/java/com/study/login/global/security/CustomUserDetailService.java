@@ -20,9 +20,15 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Login login = loginRedisRepository.findById(userId)
+        UserDetails userDetails = loginRedisRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        return new User(login.getUsername(), login.getPassword(), login.getAuthorities());
+        if(userDetails == null) {
+            throw new UsernameNotFoundException("This user is unauthenticated user.");
+        }
+
+        return userDetails;
+
+
     }
 }

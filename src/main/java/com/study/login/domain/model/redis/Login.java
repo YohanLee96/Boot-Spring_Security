@@ -53,7 +53,7 @@ public class Login implements UserDetails {
 
     @Override
     public String getPassword() {
-        return  "{noop}dummy";
+        return  "dummy";
     }
 
     @Override

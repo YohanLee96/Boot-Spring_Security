@@ -1,4 +1,4 @@
-package com.study.login.global.security.jwt;
+package com.study.login.global.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,7 +18,7 @@ public class JwtTokenBuilder {
     private String secretKey;
 
     //토큰 유효시간 지정.
-    private static final long BASIC_TIME =  30 * 1000L;
+    private static final long BASIC_TIME = 30 * 60 * 1000L;
     //리프레쉬 토큰 유효시간 지정
     private static final long REFRESH_TIME =  24 * 60 * 60 * 1000L;
 

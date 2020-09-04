@@ -1,15 +1,14 @@
 package com.study.login.domain.service;
 
-import com.study.login.domain.dto.UserDto;
+import com.study.login.domain.dto.LoginDto;
 import com.study.login.domain.model.User;
-import com.study.login.domain.model.redis.Login;
 import com.study.login.domain.repository.redis.LoginRedisRepository;
 import com.study.login.domain.repository.UserRepository;
-import com.study.login.global.security.jwt.JwtTokenProvider;
+import com.study.login.global.jwt.JwtTokenProvider;
+import com.study.login.global.jwt.TokenSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
@@ -22,46 +21,27 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    /**
-     * 신규 회원을 저장한다.
-     * @param userDto 저장할 유저정보
-     * @return 정상적으로 저장이됬을 경우, 저장한 유저정보를 리턴한다.
-     */
-    @Transactional
-    public UserDto saveUser(UserDto userDto) {
-        if(userRepository.existsByUserId(userDto.getUserId())) {
-            throw new RuntimeException("이미 가입된 아이디입니다.");
-        }
 
-        User user = userDto.toEntity();
-        userRepository.save(user);
-
-        return  user.toDto();
-    }
 
     /**
      * 유효한 유저인지 확인한 후, 로그인 토큰을 발급한다.
-     * @param userDto 로그인할 유저의 정보
+     * @param loginDto 로그인할 유저의 정보
      * @return 로그인과정을 정상적으로 마쳤을 경우, 토큰을 Set하여 리턴한다.
      */
-    public UserDto userLogin(UserDto userDto) {
-        User user = userRepository.findByUserId(userDto.getUserId())
+    public LoginDto userLogin(LoginDto loginDto) {
+        User user = userRepository.findByUserId(loginDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("가입되지 않은 아이디입니다."));
 
-        if(!passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
+        if(!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             throw new RuntimeException("잘못된 비밀번호입니다.");
         }
 
-        userDto.setToken(jwtTokenProvider.createTokenSet(user.getUserId(), Collections.singletonList(user.getRole().toString())));
-        userDto.setRole(user.getRole());
-        //  Redis에 저장.
-        loginRepository.save(Login.builder()
-                .accessToken(userDto.getAccessToken())
-                .refreshToken(userDto.getRefreshToken())
-                .userId(userDto.getUserId())
-                .roles(Collections.singletonList(userDto.getRole().toString()))
-                .build());
+        TokenSet tokenSet = jwtTokenProvider.createTokenSet(user.getUserId(), Collections.singletonList(user.getRole().toString()));
+        loginDto.registerTokenSet(tokenSet);
 
-        return userDto;
+        //  Redis에 저장.
+        loginRepository.save(loginDto.toEntity(user.getRole()));
+
+        return loginDto;
     }
 }

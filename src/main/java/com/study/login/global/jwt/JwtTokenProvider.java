@@ -1,4 +1,4 @@
-package com.study.login.global.security.jwt;
+package com.study.login.global.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,6 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        //Base64로 인코딩
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
@@ -37,17 +36,17 @@ public class JwtTokenProvider {
      * JWT 토큰셋을 생성합니다.
      * @param userPk 유저 유니크값
      * @param roles 유저의 ROLE
-     * @return Access Token, Refresh Token
+     * @return Access TokenSet, Refresh TokenSet
      */
-    public Token createTokenSet(String userPk, List<String> roles) {
-        return new Token(jwtTokenBuilder.createAccessToken(userPk, roles), jwtTokenBuilder.createRefreshToken(userPk, roles));
+    public TokenSet createTokenSet(String userPk, List<String> roles) {
+        return new TokenSet(jwtTokenBuilder.createAccessToken(userPk, roles), jwtTokenBuilder.createRefreshToken(userPk, roles));
     }
 
     /**
      * AccessToken을 생성합니다.
      * @param userPk 유저 유니크값
      * @param roles 유저의 ROLE
-     * @return Access Token
+     * @return Access TokenSet
      */
     public String createAccessToken(String userPk, List<String> roles) {
         return jwtTokenBuilder.createAccessToken(userPk, roles);
@@ -61,6 +60,7 @@ public class JwtTokenProvider {
      */
     public Authentication getAuthentication(String token) throws ExpiredJwtException {
         UserDetails userDetails =  userDetailsService.loadUserByUsername(this.getUserPk(token));
+
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 

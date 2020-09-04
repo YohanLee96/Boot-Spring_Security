@@ -1,10 +1,8 @@
-package com.study.login.global.security.jwt;
+package com.study.login.global.jwt;
 
-import com.study.login.domain.service.RedisLoginService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;

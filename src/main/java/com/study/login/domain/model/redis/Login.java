@@ -40,10 +40,6 @@ public class Login implements UserDetails {
         this.roles = roles;
     }
 
-    public Authentication toAuthentication() {
-        return new UsernamePasswordAuthenticationToken(this, null, this.getAuthorities());
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()

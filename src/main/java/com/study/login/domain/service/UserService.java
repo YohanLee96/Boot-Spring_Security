@@ -17,9 +17,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * 신규 회원을 저장한다.
+     * 회원가입을 한다.
      * @param userDto 저장할 유저정보
-     * @return 정상적으로 저장이됬을 경우, 저장한 유저정보를 리턴한다.
      */
     @Transactional
     public void saveUser(UserDto userDto) {
@@ -33,7 +32,7 @@ public class UserService {
 
         userRepository.save(user);
 
-     //   return  user.toDto();
+
     }
 
     @Transactional(readOnly = true)

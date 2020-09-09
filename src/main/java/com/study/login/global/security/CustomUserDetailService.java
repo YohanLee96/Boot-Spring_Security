@@ -1,11 +1,9 @@
 package com.study.login.global.security;
 
-import com.study.login.domain.model.redis.Login;
 import com.study.login.domain.repository.redis.LoginRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 

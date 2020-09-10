@@ -24,7 +24,7 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 @EnableWebSecurity //Spring Security 설정클래스 정의
 @Configuration
-public class SpringSecurityManager extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
+public class SecurityConfig extends WebSecurityConfigurerAdapter {    //스프링 시큐리티를 설정하기위해 상속 받음.
 
     private final JwtTokenProvider provider;
 

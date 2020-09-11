@@ -6,16 +6,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Getter
 @Setter
 public class UserDto implements Serializable {
 
+    @NotBlank(message = "userId 값은 필수 입니다.")
     private String userId;
 
+    @NotBlank(message = "password 값은 필수 입니다.")
     private String password;
 
+    @NotNull(message = "role 값은 필수 입니다.")
     private UserRole role;
 
     public User toEntity() {

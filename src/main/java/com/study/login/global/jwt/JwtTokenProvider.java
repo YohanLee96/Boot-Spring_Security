@@ -18,7 +18,7 @@ import java.util.*;
  */
 @RequiredArgsConstructor
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider  {
 
     private final UserDetailsService userDetailsService;
     private final JwtTokenBuilder jwtTokenBuilder;

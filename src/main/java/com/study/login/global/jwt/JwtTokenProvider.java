@@ -1,7 +1,11 @@
 package com.study.login.global.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,7 +15,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 
 /**
  * JWT토큰 발행자. 토큰을 직접적으로 발행하는 주체클래스이다.
@@ -20,7 +26,8 @@ import java.util.*;
 @Component
 public class JwtTokenProvider  {
 
-    private final UserDetailsService userDetailsService;
+    @Qualifier("restUserDetailService")
+    private final UserDetailsService restUserDetailService;
     private final JwtTokenBuilder jwtTokenBuilder;
 
 
@@ -41,17 +48,6 @@ public class JwtTokenProvider  {
     public TokenSet createTokenSet(String userPk, List<String> roles) {
         return new TokenSet(jwtTokenBuilder.createAccessToken(userPk, roles), jwtTokenBuilder.createRefreshToken(userPk, roles));
     }
-
-    /**
-     * AccessToken을 생성합니다.
-     * @param userPk 유저 유니크값
-     * @param roles 유저의 ROLE
-     * @return Access TokenSet
-     */
-    public String createAccessToken(String userPk, List<String> roles) {
-        return jwtTokenBuilder.createAccessToken(userPk, roles);
-    }
-
     /**
      * JWT 토큰에서  스프링 시큐리티 인증정보 조회
      * Spring SecurityContext에 저장할 때 쓰임.
@@ -59,7 +55,7 @@ public class JwtTokenProvider  {
      * @return 스프링 시큐리티 인증 정보
      */
     public Authentication getAuthentication(String token) throws ExpiredJwtException {
-        UserDetails userDetails =  userDetailsService.loadUserByUsername(this.getUserPk(token));
+        UserDetails userDetails =  restUserDetailService.loadUserByUsername(this.getUserPk(token));
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }

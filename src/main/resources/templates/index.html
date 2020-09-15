@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <title>메인</title>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <title>메인</title>
+    </head>
+    <body>
     <h1>메인 페이지</h1>
     <hr>
     <a sec:authorize="isAnonymous()" th:href="@{/login}">로그인 </a>
@@ -15,6 +15,6 @@
     <hr>
     <a sec:authorize="isAuthenticated()" th:href="@{/user/my-info}">내정보 </a>
     <hr>
-    <a sec:authorize="hasAnyRole('ROLE_MANAGER', 'ROLE_SUPER_MANAGER')" th:href="@{/admin/index}">Admin </a>
-</body>
+    <a sec:authorize="hasAnyAuthority('ADMIN')" th:href="@{/admin/index}">Admin </a>
+    </body>
 </html>

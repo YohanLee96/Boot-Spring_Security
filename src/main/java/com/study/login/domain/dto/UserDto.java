@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class UserDto implements Serializable {
+public class UserDto {
 
     @NotBlank(message = "userId 값은 필수 입니다.")
     private String userId;

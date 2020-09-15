@@ -12,7 +12,7 @@ public class CustomLoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
         //인증 성공 이후, Referer값이 /login일 경우, 메인페이지로 이동.
-        if(request.getHeader("referer").contains("/form/login")) {
+        if(request.getHeader("referer").contains("/user/login")) {
             getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + "/");
         }
 

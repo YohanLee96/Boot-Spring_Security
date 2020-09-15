@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${room.name}"></title>
+    <script th:src="@{//webjars/jquery/dist/jquery.min.js}"></script>
+    <script th:src="@{//webjars/sockjs-client/sockjs.min.js}"></script>
+</head>
+<body>
+<h1></h1>
+<div class="content" data-room-id="${room.id}" data-member="${member}">
+    <ul class="chat_box">
+    </ul>
+    <input name="message">
+    <button th:text="보내기" class="send"></button>
+</div>
+<script>
+    $(function () {
+        let chatBox = $('.chat_box');
+        let messageInput = $('input[name="message"]');
+        let sendBtn = $('.send');
+        let roomId = $('.content').data('room-id');
+        let member = $('.content').data('member');
+
+        // handshake
+        let sock = new SockJS("/ws/chat");
+
+        // onopen : connection이 맺어졌을 때의 callback
+        sock.onopen = function () {
+            // send : connection으로 message를 전달
+            // connection이 맺어진 후 가입(JOIN) 메시지를 전달
+            sock.send(JSON.stringify({chatRoomId: roomId, type: 'JOIN', writer: member}));
+
+            // onmessage : message를 받았을 때의 callback
+            sock.onmessage = function (e) {
+                let content = JSON.parse(e.data);
+                chatBox.append('<li>' + content.message + '(' + content.writer + ')</li>')
+            }
+        }
+
+        sendBtn.click(function () {
+            let message = messageInput.val();
+            sock.send(JSON.stringify({chatRoomId: roomId, type: 'CHAT', message: message, writer: member}));
+            messageInput.val('');
+        });
+    });
+</script>
+</body>
+</html>

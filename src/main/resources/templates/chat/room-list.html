@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방 목록</title>
+</head>
+<body>
+ <h1>채팅방 목록</h1>
+<ul th:each = "room : ${rooms}">
+    <li>
+        <a th:href="@{/chat/rooms/{id}(id=${room.id})}" th:text="${room.name}"></a>
+    </li>
+</ul>
+</body>
+</html>

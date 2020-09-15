@@ -1,4 +1,4 @@
-package com.study.login.global.security;
+package com.study.login.domain.service;
 
 import com.study.login.domain.repository.redis.LoginRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
  * 내려 받아 재정의 한다.
  */
 @RequiredArgsConstructor
-@Service
-public class CustomUserDetailService implements UserDetailsService {
+@Service("restUserDetailService")
+public class RestUserDetailService implements UserDetailsService {
     private final LoginRedisRepository loginRedisRepository;
 
     @Override

@@ -1,10 +1,16 @@
 package com.study.login.global.security;
 
 import com.study.login.domain.model.UserRole;
+import com.study.login.domain.repository.UserRepository;
+import com.study.login.domain.repository.redis.LoginRedisRepository;
+import com.study.login.domain.service.FormUserDetailService;
+import com.study.login.domain.service.RestUserDetailService;
 import com.study.login.global.jwt.JwtFilter;
 import com.study.login.global.jwt.JwtTokenProvider;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -14,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -36,11 +43,12 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
      * Token 기반 REST 통신 Security 정책
      */
     @Configuration
-    @Order(2)
+    @Order(1)
     @RequiredArgsConstructor
     public static class tokenBaseConfig extends WebSecurityConfigurerAdapter {
 
         private final JwtTokenProvider provider;
+        private final LoginRedisRepository loginRedisRepository;
         /**
          * 스프링 시큐리티가 사용자를 인증하는 방법이 담긴 객체
          * @param http HTTP 요청에 대한 웹 기반 보안을 구성할 수 있는 객체.
@@ -67,39 +75,52 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
                     addFilterBefore(new JwtFilter(provider), UsernamePasswordAuthenticationFilter.class);
 
         }
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.userDetailsService(new RestUserDetailService(loginRedisRepository));
+        }
+
+//        @Override
+//        public UserDetailsService userDetailsService()  {
+//            return new RestUserDetailService(loginRedisRepository);
+//        }
+
     }
 
     /**
      * Form 기반 Security 정책
      */
     @Configuration
-    @Order(1)
+    @RequiredArgsConstructor
     public static class formBaseConfig extends WebSecurityConfigurerAdapter {
+
+        private final UserRepository userRepository;
+
+        private static final String LOGIN_URL = "/user/login";
+
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.
-                    //antMatcher("/**").
+                    antMatcher("/**").
                     authorizeRequests().
-                    antMatchers("/form/join").permitAll(). //신규회원가입페이지는 모두 접근가능.
-                    antMatchers("/form/login").permitAll(). //신규회원가입페이지는 모두 접근가능.
-                 //   anyRequest().hasAnyAuthority(UserRole.ADMIN.toString()).//모든 관리자페이지는 매니저만 접근할 수 있음.
+                    antMatchers("/user/join").permitAll(). //신규회원가입페이지는 모두 접근가능.
+                    antMatchers("/chat/**").permitAll(). //신규회원가입페이지는 모두 접근가능.
                     anyRequest().authenticated().
                     and().
-                    exceptionHandling().accessDeniedPage("/denied").
-                    and().
                     formLogin().
-                    loginPage("/form/login"). //로그인 페이지는 모두 접근가능
+                    loginPage(LOGIN_URL). //로그인 페이지는 모두 접근가능
                     defaultSuccessUrl("/"). //로그인 성공 시, 리다이렉트할 URL
                     successHandler(customSuccessHandler()).
-                    failureUrl("/form/login?fail=true").
+                    failureUrl(String.format("%s?fail=true", LOGIN_URL)).
                     usernameParameter("userId").
                     passwordParameter("password").
                     permitAll().
                     and().
                     logout().
                     logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
-                    logoutSuccessUrl("/form/login").
+                    logoutSuccessUrl(LOGIN_URL).
                     invalidateHttpSession(true);
 
         }
@@ -120,6 +141,10 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
 
         }
 
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth.userDetailsService(new FormUserDetailService(userRepository));
+        }
 
     }
 
@@ -132,13 +157,13 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.inMemoryAuthentication().withUser("johnxx1").password("1234").roles(UserRole.USER.name());
-//        auth.inMemoryAuthentication().withUser("johnxx2").password("1234").roles(UserRole.ADMIN.name());
-//        auth.inMemoryAuthentication().withUser("johnxx3").password("1234").roles(UserRole.USER.name());
-//
-//    }
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("johnxx1").password("1234").roles(UserRole.USER.name());
+        auth.inMemoryAuthentication().withUser("johnxx2").password("1234").roles(UserRole.ADMIN.name());
+        auth.inMemoryAuthentication().withUser("johnxx3").password("1234").roles(UserRole.USER.name());
+
+    }
 
 
 }

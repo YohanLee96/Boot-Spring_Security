@@ -110,7 +110,7 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
                     anyRequest().authenticated().
                     and().
                     formLogin().
-                    loginPage(LOGIN_URL). //로그인 페이지는 모두 접근가능
+                    loginPage(LOGIN_URL.intern()). //로그인 페이지는 모두 접근가능
                     defaultSuccessUrl("/"). //로그인 성공 시, 리다이렉트할 URL
                     successHandler(customSuccessHandler()).
                     failureUrl(String.format("%s?fail=true", LOGIN_URL)).
@@ -137,7 +137,7 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
         @Override
         public void configure(WebSecurity web) {
             // 타임리프 View는 권한 없이 접근 가능하도록 ignoring() 설정.
-            web.ignoring().antMatchers("/templates/**");
+            web.ignoring().antMatchers("/templates/**", "/webjars/**");
 
         }
 

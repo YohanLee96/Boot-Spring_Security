@@ -1,7 +1,9 @@
-package com.study.login.global.socket;
+package com.study.login.socket;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -27,5 +29,4 @@ public class ChatRoomRepository {
     public Collection<ChatRoom> getChatRooms() {
         return chatRoomMap.values();
     }
-
 }

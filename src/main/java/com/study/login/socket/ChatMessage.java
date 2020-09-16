@@ -1,4 +1,4 @@
-package com.study.login.global.socket;
+package com.study.login.socket;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,5 +14,5 @@ public class ChatMessage {
     private String chatRoomId;
     private String writer;
     private String message;
-    private MessageType messageType;
+    private MessageType type;
 }

@@ -1,4 +1,4 @@
-package com.study.login.global.socket;
+package com.study.login.socket;
 
 
 import org.springframework.beans.factory.annotation.Autowired;

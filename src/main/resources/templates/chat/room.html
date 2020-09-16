@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${room.name}"></title>
-    <script th:src="@{//webjars/jquery/dist/jquery.min.js}"></script>
-    <script th:src="@{//webjars/sockjs-client/sockjs.min.js}"></script>
+    <script th:src="@{/webjars/jquery/dist/jquery.min.js}"></script>
+    <script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
 </head>
 <body>
-<h1></h1>
-<div class="content" data-room-id="${room.id}" data-member="${member}">
+<h1 th:text="|${room.name} : ${room.id}|">룸 이름 : 룸 ID</h1>
+<div class="content" th:data-room-id="${room.id}" th:data-member="${member}">
     <ul class="chat_box">
     </ul>
     <input name="message">
@@ -23,10 +23,11 @@
         let member = $('.content').data('member');
 
         // handshake
-        let sock = new SockJS("/ws/chat");
+        let sock = new SockJS("/api/ws/chat");
 
         // onopen : connection이 맺어졌을 때의 callback
         sock.onopen = function () {
+            console.log("소켓 열림")
             // send : connection으로 message를 전달
             // connection이 맺어진 후 가입(JOIN) 메시지를 전달
             sock.send(JSON.stringify({chatRoomId: roomId, type: 'JOIN', writer: member}));
@@ -39,7 +40,9 @@
         }
 
         sendBtn.click(function () {
+            console.log("보내기 클릭");
             let message = messageInput.val();
+            console.log(message);
             sock.send(JSON.stringify({chatRoomId: roomId, type: 'CHAT', message: message, writer: member}));
             messageInput.val('');
         });

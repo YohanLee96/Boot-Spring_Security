@@ -1,4 +1,4 @@
-package com.study.login.global.socket;
+package com.study.login.socket;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +16,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         //해당 EndPoint로 handShake가 이루어짐.
-        registry.addHandler(chatHandler, "/ws/chat").setAllowedOrigins("*").withSockJS();
+        registry.addHandler(chatHandler, "/api/ws/chat").setAllowedOrigins("*").withSockJS();
     }
 }

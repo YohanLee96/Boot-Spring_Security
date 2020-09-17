@@ -106,11 +106,12 @@ public class SecurityConfig {    //스프링 시큐리티를 설정하기위해 
                     antMatcher("/**").
                     authorizeRequests().
                     antMatchers("/user/join").permitAll(). //신규회원가입페이지는 모두 접근가능.
-                    antMatchers("/chat/**").permitAll(). //신규회원가입페이지는 모두 접근가능.
+                    antMatchers("/stomp-chat/**").permitAll().
+                    antMatchers("/chat/**").permitAll().
                     anyRequest().authenticated().
                     and().
                     formLogin().
-                    loginPage(LOGIN_URL.intern()). //로그인 페이지는 모두 접근가능
+                    loginPage(LOGIN_URL). //로그인 페이지는 모두 접근가능
                     defaultSuccessUrl("/"). //로그인 성공 시, 리다이렉트할 URL
                     successHandler(customSuccessHandler()).
                     failureUrl(String.format("%s?fail=true", LOGIN_URL)).

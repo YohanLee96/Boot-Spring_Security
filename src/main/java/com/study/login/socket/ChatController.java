@@ -1,6 +1,7 @@
 package com.study.login.socket;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,15 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 @RequestMapping("/chat")
+@RequiredArgsConstructor
 public class ChatController {
 
     private final ChatRoomRepository chatRoomRepository;
     private final AtomicInteger seq = new AtomicInteger(0);
-
-    @Autowired
-    public ChatController(ChatRoomRepository chatRoomRepository) {
-        this.chatRoomRepository = chatRoomRepository;
-    }
 
     @GetMapping("/rooms")
     public String rooms(Model model) {
@@ -34,6 +31,6 @@ public class ChatController {
         model.addAttribute("room", room);
         model.addAttribute("member", "member" + seq.incrementAndGet()); // 회원 이름 부여
 
-        return "chat/room";
+        return "/chatWithStomp/stompRoom";
     }
 }
